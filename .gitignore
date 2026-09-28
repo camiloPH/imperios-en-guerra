@@ -1,0 +1,59 @@
+# Carpetas que Unity regenera automáticamente al abrir el proyecto
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Bb]uild/
+/[Bb]uilds/
+/[Ll]ogs/
+/[Uu]ser[Ss]ettings/
+/[Mm]emoryCaptures/
+/[Rr]ecordings/
+
+# Archivos que generan Visual Studio / Rider
+.vs/
+.idea/
+*.csproj
+*.unityproj
+*.sln
+*.slnx
+*.suo
+*.tmp
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+
+# Metadatos de depuración y crash reports
+*.pidb.meta
+*.pdb.meta
+*.mdb.meta
+sysinfo.txt
+crashlytics-build.properties
+
+# Builds
+*.apk
+*.aab
+*.unitypackage
+*.app
+
+# Archivos temporales de Office y del sistema
+~$*
+.DS_Store
+Thumbs.db
+
+# Salidas antiguas de la primera versión (las actuales están en ArchivosPartida/)
+/configuracion.txt
+/log_partida.txt
+
+# Copia de seguridad local de los scripts anteriores
+/Respaldo_Scripts_2026-09-25/
+
+# Documentación, diagramas, herramientas y salidas de partidas (no se suben: solo el proyecto)
+/Documentacion/
+/Herramientas/
+/ArchivosPartida/
