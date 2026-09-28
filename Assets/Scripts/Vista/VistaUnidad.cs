@@ -4,11 +4,7 @@ using Modelo;
 
 namespace Vista
 {
-    /// <summary>
-    /// Sprite de una unidad sobre el mapa. El Modelo mueve la unidad casilla
-    /// a casilla (en su hilo); aquí solo se interpola suavemente la posición
-    /// dibujada hacia la casilla actual, y se muestran vida, selección y recarga.
-    /// </summary>
+    /// <summary>Sprite de una unidad: se desliza hacia su casilla y muestra vida, seleccion y recarga.</summary>
     public class VistaUnidad : MonoBehaviour
     {
         private RectTransform _rt;
@@ -51,7 +47,7 @@ namespace Vista
             _destino = destino;
             if (!_colocada || !visible)
             {
-                _rt.anchoredPosition = destino; // primera vez (o reaparece): sin interpolar
+                _rt.anchoredPosition = destino;  // primera vez (o reaparece): sin interpolar
                 _colocada = true;
             }
 

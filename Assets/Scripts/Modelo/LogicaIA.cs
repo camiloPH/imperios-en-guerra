@@ -6,17 +6,8 @@ using System.Threading;
 namespace Modelo
 {
     /// <summary>
-    /// Oponente controlado por la computadora. Corre en su propio hilo
-    /// dedicado ("Hilo-IA", System.Threading.Thread) y cada cierto intervalo
-    /// toma decisiones usando EXACTAMENTE la misma API que el jugador humano
-    /// (GestorConcurrencia): así la IA no puede saltarse ninguna regla.
-    ///
-    /// La IA tampoco hace trampa con la información: del mapa humano solo
-    /// "ve" los edificios (visibles para ambos) y las casillas que reveló
-    /// con sus disparos, igual que el humano sobre el mapa de la IA.
-    ///
-    /// Finalización: Detener() cancela el token (que también despierta la
-    /// espera entre decisiones) y hace Join() del hilo.
+    /// IA en su propio Thread ("Hilo-IA"). Usa la misma API que el humano y solo ve
+    /// lo que el humano veria. Se detiene con Cancel() + Join().
     /// </summary>
     public class LogicaIA
     {
@@ -49,7 +40,7 @@ namespace Modelo
             }
         }
 
-        /// <summary>Tope de aldeanos: en Fácil la IA tiene una economía más pequeña.</summary>
+        /// <summary>Tope de aldeanos: en Facil la IA tiene una economia mas pequeña.</summary>
         private int MaxAldeanos
         {
             get
@@ -63,7 +54,7 @@ namespace Modelo
             }
         }
 
-        /// <summary>Probabilidad de apuntar a un objetivo conocido en vez de disparar "a ciegas".</summary>
+        /// <summary>Probabilidad de apuntar a un objetivo conocido.</summary>
         private double Puntería
         {
             get
@@ -125,9 +116,7 @@ namespace Modelo
             }
         }
 
-        // ================================================================
-        // Decisiones
-        // ================================================================
+        // --- Decisiones ---
 
         private void TomarDecisiones()
         {
@@ -151,7 +140,7 @@ namespace Modelo
         private TipoRecurso RecursoMasNecesario()
         {
             var r = IA.Recursos.Snapshot();
-            // Pesos: la comida y la madera se gastan más; el oro se necesita para militares.
+            // Pesos: la comida y la madera se gastan mas; el oro se necesita para militares.
             var necesidad = new Dictionary<TipoRecurso, double>
             {
                 { TipoRecurso.Comida, r[TipoRecurso.Comida] / 1.2 },
@@ -184,7 +173,7 @@ namespace Modelo
             if (lugar.HasValue) _gestor.Construir(IA, deseado.Value, lugar.Value);
         }
 
-        /// <summary>Casilla libre a 2-4 pasos de la referencia (deja libres las vecinas para que salgan unidades).</summary>
+        /// <summary>Casilla libre a 2-4 pasos (deja libres las vecinas para que salgan unidades).</summary>
         private Posicion? LugarParaConstruir(Posicion referencia)
         {
             var candidatas = IA.Mapa.CasillasLibresCercanas(referencia, 40, 4, incluirOrigen: false)
@@ -228,17 +217,14 @@ namespace Modelo
             {
                 _gestor.Atacar(IA, u, objetivo);
                 if (!_partida.EnCurso) return;
-                // ...salvo que ese objetivo ya quedó vacío: entonces se elige otro.
+                // ...salvo que ese objetivo ya quedo vacio: entonces se elige otro.
                 var tipoCasilla = Humano.Mapa.ObtenerInfo(objetivo).Tipo;
                 if (tipoCasilla == TipoCasilla.Libre || tipoCasilla == TipoCasilla.RecursoNatural)
                     objetivo = ElegirObjetivo();
             }
         }
 
-        /// <summary>
-        /// Elige dónde disparar usando solo información "legal": edificios
-        /// (visibles) y casillas reveladas por sus disparos recientes.
-        /// </summary>
+        /// <summary>Elige donde disparar usando solo edificios visibles y casillas reveladas.</summary>
         private Posicion ElegirObjetivo()
         {
             var mapa = Humano.Mapa.Instantanea();
@@ -273,7 +259,7 @@ namespace Modelo
 
             if (edificios.Count > 0 && _rng.NextDouble() < Puntería)
             {
-                // Prioridad: Cuartel (corta su producción) > Centro Urbano > Casa; y el más dañado primero.
+                // Prioridad: Cuartel (corta su produccion) > Centro Urbano > Casa; y el mas dañado primero.
                 var elegido = edificios
                     .OrderBy(c => c.TipoEdificio == TipoEdificio.Cuartel ? 0 : c.TipoEdificio == TipoEdificio.CentroUrbano ? 1 : 2)
                     .ThenBy(c => c.VidaEdificio)

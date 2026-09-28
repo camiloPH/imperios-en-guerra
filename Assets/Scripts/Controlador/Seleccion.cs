@@ -5,11 +5,7 @@ namespace Controlador
 {
     public enum ModoAccion { Normal, Construir }
 
-    /// <summary>
-    /// Estado de la interacción del usuario (qué tiene seleccionado y en qué
-    /// modo está). Lo administra el Controlador; la Vista solo lo lee para
-    /// resaltar lo seleccionado.
-    /// </summary>
+    /// <summary>Que tiene seleccionado el usuario y en que modo esta. La Vista solo lo lee.</summary>
     public class Seleccion
     {
         private readonly List<string> _unidades = new List<string>();
@@ -50,7 +46,7 @@ namespace Controlador
             Modo = ModoAccion.Normal;
         }
 
-        /// <summary>Quita de la selección lo que ya no existe (unidades muertas, edificios destruidos).</summary>
+        /// <summary>Quita de la seleccion lo que ya no existe.</summary>
         public void Depurar(Jugador jugador)
         {
             _unidades.RemoveAll(id => jugador.BuscarUnidad(id) == null);

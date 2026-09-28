@@ -19,12 +19,7 @@ namespace Modelo
         FinDePartida
     }
 
-    /// <summary>
-    /// DTO plano que un hilo del Modelo encola cuando algo cambió. NUNCA
-    /// contiene referencias a UnityEngine, para poder crearse desde cualquier
-    /// hilo secundario. El Controlador (hilo principal) lo desencola, lo
-    /// registra en log_partida.txt y avisa a la Vista.
-    /// </summary>
+    /// <summary>Nota que un hilo encola cuando algo cambia. Sin nada de Unity.</summary>
     public class EventoJuego
     {
         public TipoEvento Tipo { get; }
@@ -51,7 +46,7 @@ namespace Modelo
             Momento = DateTime.Now;
         }
 
-        /// <summary>Nombre de la acción tal como aparece en log_partida.txt.</summary>
+        /// <summary>Nombre de la accion tal como aparece en log_partida.txt.</summary>
         public string AccionLegible
         {
             get
@@ -75,7 +70,7 @@ namespace Modelo
             }
         }
 
-        /// <summary>Los eventos muy frecuentes (cada ciclo de recolección) no se escriben en el log.</summary>
+        /// <summary>La recoleccion (muy frecuente) no se escribe en el log.</summary>
         public bool EsRelevanteParaLog => Tipo != TipoEvento.RecursoRecolectado;
 
         public override string ToString() => $"[{Momento:HH:mm:ss}] {NombreJugador} - {AccionLegible}: {Descripcion}";

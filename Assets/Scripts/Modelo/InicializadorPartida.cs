@@ -3,12 +3,7 @@ using System.Collections.Generic;
 
 namespace Modelo
 {
-    /// <summary>
-    /// Construye una Partida lista para jugar: dos jugadores (humano e IA),
-    /// cada uno con su mapa 15x15, recursos naturales ubicados al azar sin
-    /// sobreponerse, su Centro Urbano y sus aldeanos iniciales. El Centro
-    /// Urbano del humano puede ubicarse al azar o manualmente con un clic.
-    /// </summary>
+    /// <summary>Arma la partida: jugadores, mapas, recursos al azar, Centros Urbanos y aldeanos.</summary>
     public static class InicializadorPartida
     {
         public const string IdHumano = "jugador1";
@@ -35,7 +30,7 @@ namespace Modelo
 
             if (ubicacionManual)
             {
-                // Primero los recursos; el jugador elegirá una casilla libre para su Centro Urbano.
+                // Primero los recursos; el jugador elegira una casilla libre para su Centro Urbano.
                 GenerarRecursos(humano, rng, null);
             }
             else
@@ -47,7 +42,7 @@ namespace Modelo
             return partida;
         }
 
-        /// <summary>Ubicación manual (clic del usuario) del Centro Urbano, con validación.</summary>
+        /// <summary>Ubicacion manual (clic del usuario) del Centro Urbano, con validacion.</summary>
         public static ResultadoAccion UbicarCentroUrbanoManual(Partida partida, Posicion pos)
         {
             var humano = partida.JugadorHumano;
@@ -85,10 +80,7 @@ namespace Modelo
             }
         }
 
-        /// <summary>
-        /// Reparte grupos de recursos al azar. Cada casilla se coloca solo si
-        /// está libre (ColocarRecursoNatural lo valida), así nada se sobrepone.
-        /// </summary>
+        /// <summary>Reparte recursos al azar; solo se colocan en casillas libres.</summary>
         private static void GenerarRecursos(Jugador jugador, Random rng, Posicion? centro)
         {
             var grupos = new List<(TipoRecurso tipo, int casillas, int cantidad)>

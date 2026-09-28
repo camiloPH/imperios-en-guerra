@@ -4,19 +4,8 @@ using System.Collections.Generic;
 namespace Modelo
 {
     /// <summary>
-    /// Puente thread-safe entre el Modelo (hilos secundarios: recolección,
-    /// construcción, entrenamiento, movimiento, IA) y el Controlador, que vive
-    /// en el ÚNICO hilo principal de Unity.
-    ///
-    /// Los hilos del Modelo llaman a Encolar(...) desde cualquier hilo.
-    /// El Controlador, dentro de Update() (hilo principal de Unity), llama a
-    /// DesencolarTodos() en cada frame y traduce cada EventoJuego en una
-    /// llamada a la Vista (por ejemplo, refrescar un contador de recursos o
-    /// mover un sprite). Así nunca se toca la API de UnityEngine desde un
-    /// hilo secundario.
-    ///
-    /// ConcurrentQueue ya es thread-safe internamente, así que no hace falta
-    /// lock adicional aquí.
+    /// Buzon thread-safe: los hilos del Modelo encolan eventos y el Controlador
+    /// los desencola en Update() (hilo principal). ConcurrentQueue no necesita lock.
     /// </summary>
     public class ColaEventos
     {
@@ -32,11 +21,7 @@ namespace Modelo
             return _eventos.TryDequeue(out evento);
         }
 
-        /// <summary>
-        /// Pensado para llamarse una vez por frame desde el Controlador
-        /// (por ejemplo dentro de Update()). Devuelve todo lo acumulado
-        /// desde la última llamada, en orden de llegada.
-        /// </summary>
+        /// <summary>Saca todos los eventos pendientes, en orden de llegada (una vez por frame).</summary>
         public List<EventoJuego> DesencolarTodos()
         {
             var lista = new List<EventoJuego>();

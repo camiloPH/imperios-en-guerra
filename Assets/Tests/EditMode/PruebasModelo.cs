@@ -8,9 +8,8 @@ using Modelo;
 namespace Pruebas
 {
     /// <summary>
-    /// Pruebas automáticas de las secciones críticas del Modelo:
-    /// concurrencia, mapa/validaciones, ataques y condición de victoria.
-    /// Ejecutar en Unity: Window > General > Test Runner > EditMode > Run All.
+    /// Pruebas del Modelo: concurrencia, mapa, validaciones, ataques y victoria.
+    /// Ejecutar: Window > General > Test Runner > EditMode > Run All.
     /// </summary>
     public class PruebasModelo
     {
@@ -171,7 +170,7 @@ namespace Pruebas
             int golpes = 0;
             while (p.EnCurso && golpes < 100)
             {
-                soldado.TerminarRecarga(); // la prueba no espera el tiempo real de recarga
+                soldado.TerminarRecarga();  // la prueba no espera el tiempo real de recarga
                 g.Atacar(p.JugadorHumano, soldado, centro.Posicion);
                 golpes++;
             }

@@ -6,11 +6,7 @@ using UnityEngine.UI;
 
 namespace Vista
 {
-    /// <summary>
-    /// Paleta de colores y "fábrica" de elementos de interfaz (UGUI) creados
-    /// por código: paneles, textos, imágenes y botones con el mismo estilo.
-    /// Cumple el papel de los prefabs, pero sin depender de assets de escena.
-    /// </summary>
+    /// <summary>Colores y creacion por codigo de paneles, textos, imagenes y botones (hace de prefabs).</summary>
     public static class FabricaUI
     {
         public static readonly Color Fondo = new Color32(24, 19, 14, 255);
@@ -22,7 +18,7 @@ namespace Vista
         public static readonly Color Verde = new Color32(120, 220, 120, 255);
         public static readonly Color Naranja = new Color32(255, 170, 70, 255);
 
-        /// <summary>Color de cada bando: azul egeo para Grecia, carmesí para Troya.</summary>
+        /// <summary>Color de cada bando: azul egeo para Grecia, carmesi para Troya.</summary>
         public static Color ColorDe(Modelo.Civilizacion civ) => civ == Modelo.Civilizacion.Grecia ? Azul : Rojo;
 
         private static Font _fuente;
@@ -46,7 +42,7 @@ namespace Vista
             return rt;
         }
 
-        /// <summary>Posiciona en píxeles de referencia desde la esquina superior izquierda del padre.</summary>
+        /// <summary>Posiciona desde la esquina superior izquierda del padre.</summary>
         public static void Ubicar(RectTransform rt, float x, float y, float ancho, float alto)
         {
             rt.anchorMin = rt.anchorMax = new Vector2(0, 1);
@@ -158,7 +154,7 @@ namespace Vista
         }
     }
 
-    /// <summary>Referencias a las partes de un botón creado por la fábrica.</summary>
+    /// <summary>Referencias a las partes de un boton creado por la fabrica.</summary>
     public class BotonUI
     {
         public Button Boton { get; }
@@ -179,7 +175,7 @@ namespace Vista
         public void Resaltar(bool activo) => Fondo.color = activo ? new Color(1f, 0.85f, 0.45f) : Color.white;
     }
 
-    /// <summary>Componente mínimo que traduce eventos del puntero (clic, entrar, salir) a delegados C#.</summary>
+    /// <summary>Convierte eventos del puntero (clic, entrar, salir) en delegados.</summary>
     public class ReceptorPuntero : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
     {
         public Action<PointerEventData.InputButton> AlHacerClic;

@@ -6,7 +6,7 @@ using System.Threading;
 
 namespace Modelo
 {
-    /// <summary>Contadores de la partida de un jugador (Interlocked: se suman desde varios hilos).</summary>
+    /// <summary>Estadisticas del jugador (Interlocked: se suman desde varios hilos).</summary>
     public class EstadisticasJugador
     {
         private int _recolectado, _disparosAcertados, _disparosFallados;
@@ -32,12 +32,7 @@ namespace Modelo
         internal void SumarEdificioConstruido() => Interlocked.Increment(ref _edificiosConstruidos);
     }
 
-    /// <summary>
-    /// Un jugador (humano o IA) con su propio mapa, como pide la guía. Las
-    /// colecciones de unidades y edificios se modifican desde varios hilos a
-    /// la vez (entrenamiento, construcción, muertes por ataque), por eso son
-    /// ConcurrentDictionary en lugar de List/Dictionary normales.
-    /// </summary>
+    /// <summary>Jugador humano o IA con su propio mapa. Listas concurrentes porque varios hilos las modifican.</summary>
     public class Jugador
     {
         public string Id { get; }
@@ -50,7 +45,7 @@ namespace Modelo
         private readonly ConcurrentDictionary<string, Unidad> _unidades = new ConcurrentDictionary<string, Unidad>();
         private readonly ConcurrentDictionary<string, Edificio> _edificios = new ConcurrentDictionary<string, Edificio>();
 
-        /// <summary>Casillas del mapa ENEMIGO que este jugador puede ver, y hasta cuándo.</summary>
+        /// <summary>Casillas del mapa ENEMIGO que este jugador puede ver, y hasta cuando.</summary>
         private readonly ConcurrentDictionary<Posicion, DateTime> _reveladas = new ConcurrentDictionary<Posicion, DateTime>();
 
         private readonly object _candadoPoblacion = new object();
@@ -60,7 +55,7 @@ namespace Modelo
         /// <summary>Grecia o Troya.</summary>
         public Civilizacion Civilizacion { get; }
 
-        /// <summary>Multiplica el tiempo de recarga de sus tropas (la IA en Fácil dispara más lento).</summary>
+        /// <summary>Multiplicador de recarga de sus tropas (IA en Facil = mas lenta).</summary>
         public double ModificadorRecarga { get; internal set; } = 1.0;
 
         public Jugador(string id, string nombre, bool esIA, int filasMapa = ReglasJuego.FilasMapa, int columnasMapa = ReglasJuego.ColumnasMapa,
@@ -94,7 +89,7 @@ namespace Modelo
         public int ContarUnidades(TipoUnidad tipo) => _unidades.Values.Count(u => u.Tipo == tipo && u.EstaVivo());
         public int ContarMilitares() => _unidades.Values.Count(u => u.EsMilitar() && u.EstaVivo());
 
-        // ------------------------------------------------------------ población
+        // ------------------------------------------------------------ poblacion
         public int Poblacion
         {
             get { lock (_candadoPoblacion) return _unidades.Count + _reservasPoblacion; }
@@ -104,7 +99,7 @@ namespace Modelo
             Math.Min(ReglasJuego.PoblacionTope,
                 _edificios.Values.Where(e => e.EstaOperativo()).Sum(e => ReglasJuego.PoblacionQueAporta(e.Tipo)));
 
-        /// <summary>Reserva un cupo de población para una unidad que empieza a entrenarse.</summary>
+        /// <summary>Reserva un cupo de poblacion para una unidad que empieza a entrenarse.</summary>
         internal bool IntentarReservarPoblacion()
         {
             lock (_candadoPoblacion)
@@ -127,7 +122,7 @@ namespace Modelo
         internal void Revelar(Posicion posicionEnemiga) =>
             _reveladas[posicionEnemiga] = DateTime.UtcNow.AddMilliseconds(ReglasJuego.DuracionRevelacionMs);
 
-        /// <summary>¿Este jugador ve ahora mismo esa casilla del mapa enemigo?</summary>
+        /// <summary>Este jugador ve ahora mismo esa casilla del mapa enemigo?</summary>
         public bool TieneRevelada(Posicion posicionEnemiga) =>
             _reveladas.TryGetValue(posicionEnemiga, out var hasta) && hasta > DateTime.UtcNow;
 

@@ -3,11 +3,7 @@ using Controlador;
 
 namespace Vista
 {
-    /// <summary>
-    /// Garantiza que la escena tenga un JuegoControlador con la Vista gráfica
-    /// al darle Play, aunque la escena esté vacía. Si ya existe un
-    /// "JuegoManager" con JuegoControlador, solo le agrega VistaJuegoUI.
-    /// </summary>
+    /// <summary>Al dar Play crea (si falta) el JuegoManager con el Controlador y la Vista grafica.</summary>
     public static class ArranqueVista
     {
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]

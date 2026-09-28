@@ -7,10 +7,7 @@ using Modelo;
 
 namespace Vista
 {
-    /// <summary>
-    /// Dibuja la matriz de un jugador (casillas + unidades + efectos) y
-    /// traduce los clics sobre las casillas en coordenadas (fila, columna).
-    /// </summary>
+    /// <summary>Dibuja el mapa de un jugador (casillas, unidades y efectos) y traduce los clics a coordenadas.</summary>
     public class VistaMapa : MonoBehaviour
     {
         public Action<Posicion, bool> AlHacerClic;
@@ -59,7 +56,7 @@ namespace Vista
         public Vector2 CentroDe(Posicion p) =>
             new Vector2(p.Columna * TamCelda + TamCelda / 2f, -(p.Fila * TamCelda + TamCelda / 2f));
 
-        /// <summary>Vuelve a dibujar a partir de una instantánea del Modelo.</summary>
+        /// <summary>Vuelve a dibujar a partir de una instantanea del Modelo.</summary>
         public void Refrescar(InfoCasilla[,] info, IReadOnlyList<Unidad> unidades, Func<Posicion, bool> esVisible,
                               ICollection<string> unidadesSeleccionadas, string edificioSeleccionado)
         {
@@ -128,7 +125,7 @@ namespace Vista
             }
         }
 
-        /// <summary>Color del resaltado bajo el cursor (p. ej. verde/rojo al elegir dónde construir).</summary>
+        /// <summary>Color del resaltado bajo el cursor.</summary>
         public void ColorHover(Color color)
         {
             if (_colorHover == color) return;
@@ -195,7 +192,7 @@ namespace Vista
         /// <summary>Sacude el mapa (se usa cuando el enemigo acierta un disparo).</summary>
         public void Sacudir(float intensidad = 6f, float duracion = 0.25f)
         {
-            if (_sacudiendo) return; // no acumular sacudidas (desplazarían el mapa)
+            if (_sacudiendo) return;  // no acumular sacudidas (desplazarian el mapa)
             StartCoroutine(AnimarSacudida(intensidad, duracion));
         }
 

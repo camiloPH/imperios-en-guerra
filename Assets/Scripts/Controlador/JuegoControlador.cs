@@ -8,15 +8,8 @@ using Modelo;
 namespace Controlador
 {
     /// <summary>
-    /// Controlador del patrón MVC:
-    ///   - Recibe la entrada del usuario desde la Vista (IEntradaJugador),
-    ///     valida el contexto (selección, modo) y ordena al Modelo.
-    ///   - Cada frame vacía la ColaEventos del Modelo (hilo principal de
-    ///     Unity), registra los eventos en el log y avisa a la Vista.
-    ///   - No dibuja nada ni contiene reglas del juego (esas viven en Modelo).
-    ///
-    /// Es el ÚNICO punto donde el trabajo de los hilos secundarios vuelve al
-    /// hilo principal: los hilos encolan EventoJuego y aquí se consumen.
+    /// Controlador MVC: recibe los clics, llama al Modelo y avisa a la Vista.
+    /// En Update() desencola los eventos de los hilos (unico punto de regreso al hilo principal).
     /// </summary>
     public class JuegoControlador : MonoBehaviour, IEntradaJugador
     {
@@ -41,9 +34,7 @@ namespace Controlador
 
         private Jugador Humano => _partida?.JugadorHumano;
 
-        // ================================================================
-        // Ciclo de vida de Unity
-        // ================================================================
+        // --- Ciclo de vida de Unity ---
 
         private void Awake()
         {
@@ -53,15 +44,14 @@ namespace Controlador
 
         private void Start()
         {
-            // Las Vistas pueden registrarse antes o después de este Start (según el orden de Unity);
-            // por eso el menú se muestra aquí para todas las ya registradas.
+            // Las Vistas pueden registrarse antes o despues de Start: se muestra el menu a todas.
             foreach (var vista in GetComponents<MonoBehaviour>().OfType<IVistaJuego>())
                 RegistrarVista(vista);
             _iniciado = true;
             Avisar(v => v.MostrarMenuInicio());
         }
 
-        /// <summary>Permite que una Vista creada en tiempo de ejecución se suscriba.</summary>
+        /// <summary>Permite que una Vista creada en tiempo de ejecucion se suscriba.</summary>
         public void RegistrarVista(IVistaJuego vista)
         {
             if (vista == null || _vistas.Contains(vista)) return;
@@ -88,7 +78,7 @@ namespace Controlador
             {
                 _proximoRefresco = Time.unscaledTime + intervaloRefrescoSeg;
                 _seleccion.Depurar(Humano);
-                int hilos = (_gestor?.TareasActivas ?? 0) + 2; // + Hilo-IA + Hilo-Log
+                int hilos = (_gestor?.TareasActivas ?? 0) + 2;  // + Hilo-IA + Hilo-Log
                 foreach (var v in _vistas) v.Refrescar(_partida, _seleccion, hilos);
             }
         }
@@ -96,9 +86,7 @@ namespace Controlador
         private void OnApplicationQuit() => LiberarPartida(guardarSiInterrumpida: true);
         private void OnDestroy() => LiberarPartida(guardarSiInterrumpida: false);
 
-        // ================================================================
-        // Eventos del Modelo -> Vista (+ log)
-        // ================================================================
+        // --- Eventos del Modelo -> Vista y log ---
 
         private void ProcesarEvento(EventoJuego e)
         {
@@ -110,7 +98,7 @@ namespace Controlador
             switch (e.Tipo)
             {
                 case TipoEvento.Ataque:
-                    // Si atacó el humano, el disparo cae en el mapa de la IA, y viceversa.
+                    // Si ataco el humano, el disparo cae en el mapa de la IA, y viceversa.
                     Avisar(v => v.MostrarAtaque(!delHumano, pos, e.Exito, e.Valor));
                     Mensaje(delHumano ? $"Tu ataque: {TextoResultado(e)}"
                             : $"¡{ReglasJuego.Nombre(_partida.JugadorIA.Civilizacion)} atacó {pos}! {TextoResultado(e)}",
@@ -145,7 +133,7 @@ namespace Controlador
                         Mensaje(e.Descripcion, e.Exito ? TipoMensaje.Info : TipoMensaje.Error);
                     break;
 
-                // Órdenes de movimiento/recolección y fin de partida: solo log (el fin se procesa aparte).
+                // Ordenes de movimiento/recoleccion y fin de partida: solo log (el fin se procesa aparte).
             }
         }
 
@@ -179,9 +167,7 @@ namespace Controlador
             Avisar(v => v.MostrarFinDePartida(ganoHumano, ganador?.Nombre ?? "-", resumen, carpeta));
         }
 
-        // ================================================================
-        // Entrada del usuario (IEntradaJugador)
-        // ================================================================
+        // --- Entrada del usuario (IEntradaJugador) ---
 
         public void IniciarPartida(Dificultad dificultad, bool ubicacionManual, Civilizacion civilizacion)
         {
@@ -439,9 +425,7 @@ namespace Controlador
 #endif
         }
 
-        // ================================================================
-        // Utilidades
-        // ================================================================
+        // --- Utilidades ---
 
         /// <summary>Detiene los hilos de la partida actual y cierra los archivos.</summary>
         private void LiberarPartida(bool guardarSiInterrumpida)
@@ -457,10 +441,7 @@ namespace Controlador
             _archivos = null;
         }
 
-        /// <summary>
-        /// En el editor: la carpeta del proyecto. En el build: la carpeta del
-        /// ejecutable (Application.dataPath apunta a "Juego_Data").
-        /// </summary>
+        /// <summary>Carpeta de los .txt: junto al proyecto (editor) o al ejecutable (build).</summary>
         private static string CarpetaArchivos()
         {
             var raiz = Directory.GetParent(Application.dataPath)?.FullName ?? Application.persistentDataPath;

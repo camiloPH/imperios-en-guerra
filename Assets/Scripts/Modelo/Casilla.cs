@@ -13,11 +13,7 @@ namespace Modelo
     /// <summary>Marca que deja un disparo sobre el mapa atacado.</summary>
     public enum MarcaCasilla { Ninguna, Fallo, Impacto }
 
-    /// <summary>
-    /// Una celda de la matriz del mapa. Guarda solo datos del Modelo, nunca
-    /// objetos de Unity. Los setters son internal: únicamente la clase Mapa
-    /// los modifica, y siempre dentro de su lock.
-    /// </summary>
+    /// <summary>Celda del mapa. Solo Mapa la modifica, dentro de su lock.</summary>
     public class Casilla
     {
         public TipoCasilla Tipo { get; internal set; } = TipoCasilla.Libre;
@@ -40,11 +36,7 @@ namespace Modelo
         }
     }
 
-    /// <summary>
-    /// Copia inmutable del contenido de una casilla en un instante dado. La
-    /// Vista dibuja a partir de estas copias (tomadas bajo el lock del Mapa),
-    /// así nunca lee a medias un estado que otro hilo está modificando.
-    /// </summary>
+    /// <summary>Copia inmutable de una casilla para que la Vista dibuje sin leer datos a medio cambiar.</summary>
     public readonly struct InfoCasilla
     {
         public readonly Posicion Posicion;

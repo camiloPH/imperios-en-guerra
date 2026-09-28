@@ -3,11 +3,7 @@ using System.Collections.Generic;
 
 namespace Modelo
 {
-    /// <summary>
-    /// Coordenada (fila, columna) dentro de la matriz del mapa. Es un struct
-    /// inmutable: no depende de UnityEngine.Vector2, para que el Modelo se
-    /// pueda compilar y probar sin el motor.
-    /// </summary>
+    /// <summary>Coordenada (fila, columna). Struct inmutable, independiente de Unity.</summary>
     public readonly struct Posicion : IEquatable<Posicion>
     {
         public int Fila { get; }
@@ -40,7 +36,7 @@ namespace Modelo
 
         public bool EsAdyacenteA(Posicion otra) => !Equals(otra) && DistanciaEnPasos(otra) == 1;
 
-        /// <summary>Las 8 casillas vecinas (pueden quedar fuera del mapa: el Mapa lo valida).</summary>
+        /// <summary>Las 8 vecinas (el Mapa valida si estan dentro).</summary>
         public IEnumerable<Posicion> Vecinas()
         {
             for (int df = -1; df <= 1; df++)

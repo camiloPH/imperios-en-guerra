@@ -4,11 +4,7 @@ using Modelo;
 
 namespace Vista
 {
-    /// <summary>
-    /// Carga (una sola vez) los sprites de Assets/Resources/Sprites. Si falta
-    /// alguno, crea un cuadro de color de respaldo para que el juego nunca se
-    /// caiga por un recurso gráfico ausente.
-    /// </summary>
+    /// <summary>Carga los sprites de Resources/Sprites una vez; si falta uno, usa un color de respaldo.</summary>
     public static class CatalogoSprites
     {
         private static readonly Dictionary<string, Sprite> Cache = new Dictionary<string, Sprite>();

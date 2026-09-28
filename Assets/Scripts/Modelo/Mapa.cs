@@ -4,13 +4,7 @@ using System.Text;
 
 namespace Modelo
 {
-    /// <summary>
-    /// Matriz (15x15 por defecto) del mapa de un jugador. TODA lectura o
-    /// escritura de la matriz pasa por lock(_candado), porque a la vez
-    /// pueden estar corriendo: hilos de recolección, construcción,
-    /// entrenamiento, movimiento, ataques del enemigo, la IA y el hilo
-    /// principal de Unity tomando una instantánea para dibujar.
-    /// </summary>
+    /// <summary>Matriz 15x15 de un jugador. Toda lectura y escritura pasa por lock(_candado).</summary>
     public class Mapa
     {
         public int Filas { get; }
@@ -126,11 +120,7 @@ namespace Modelo
             }
         }
 
-        /// <summary>
-        /// Mueve una unidad a una casilla libre. Comprueba, dentro del mismo
-        /// lock, que la unidad siga viva y siga en su casilla de origen (un
-        /// ataque pudo matarla un instante antes).
-        /// </summary>
+        /// <summary>Mueve la unidad si sigue viva y la casilla destino esta libre (todo dentro del lock).</summary>
         internal bool MoverUnidad(Unidad unidad, Posicion destino)
         {
             if (!EstaDentroDelMapa(destino)) return false;
@@ -171,11 +161,7 @@ namespace Modelo
             }
         }
 
-        /// <summary>
-        /// Extrae hasta 'cantidad' del recurso natural de la casilla de forma
-        /// atómica (dos aldeanos sobre el mismo árbol nunca sacan de más). Si
-        /// el recurso se agota, la casilla queda libre.
-        /// </summary>
+        /// <summary>Extrae recurso de forma atomica; si se agota, la casilla queda libre.</summary>
         internal int ExtraerRecurso(Posicion pos, int cantidad, out TipoRecurso tipo)
         {
             tipo = TipoRecurso.Madera;
@@ -205,16 +191,16 @@ namespace Modelo
             }
         }
 
-        // ------------------------------------------------------------ búsquedas
+        // ------------------------------------------------------------ busquedas
 
-        /// <summary>Casilla libre más cercana a 'origen' (anillos concéntricos), sin contar el origen.</summary>
+        /// <summary>Casilla libre mas cercana a 'origen', sin contarlo.</summary>
         public Posicion? BuscarCasillaLibreAdyacente(Posicion origen, int radioMax = 4)
         {
             var lista = CasillasLibresCercanas(origen, 1, radioMax, incluirOrigen: false);
             return lista.Count > 0 ? lista[0] : (Posicion?)null;
         }
 
-        /// <summary>Hasta 'cantidad' casillas libres ordenadas por cercanía a 'origen'.</summary>
+        /// <summary>Hasta 'cantidad' casillas libres ordenadas por cercania a 'origen'.</summary>
         public List<Posicion> CasillasLibresCercanas(Posicion origen, int cantidad, int radioMax = 4, bool incluirOrigen = true)
         {
             var resultado = new List<Posicion>();
@@ -229,7 +215,7 @@ namespace Modelo
                     {
                         for (int dc = -radio; dc <= radio && resultado.Count < cantidad; dc++)
                         {
-                            if (Math.Max(Math.Abs(df), Math.Abs(dc)) != radio) continue; // solo el borde del anillo
+                            if (Math.Max(Math.Abs(df), Math.Abs(dc)) != radio) continue;  // solo el borde del anillo
                             var candidata = new Posicion(origen.Fila + df, origen.Columna + dc);
                             if (EstaDentroDelMapa(candidata) && _casillas[candidata.Fila, candidata.Columna].EstaLibre())
                                 resultado.Add(candidata);
@@ -266,7 +252,7 @@ namespace Modelo
             return mejor;
         }
 
-        /// <summary>Ruta (sin incluir el origen) hasta una casilla libre. null si no hay camino.</summary>
+        /// <summary>Ruta hasta una casilla libre (sin el origen). null si no hay camino.</summary>
         public List<Posicion> BuscarRuta(Posicion origen, Posicion destino)
         {
             if (!EstaDentroDelMapa(destino)) return null;
@@ -274,18 +260,14 @@ namespace Modelo
             return BuscarRutaBFS(origen, pos => pos.Equals(destino));
         }
 
-        /// <summary>
-        /// Ruta hasta cualquier casilla libre vecina de 'objetivo' (para
-        /// recolectar un recurso o acercarse a un edificio). Lista vacía si
-        /// ya está al lado; null si no hay camino.
-        /// </summary>
+        /// <summary>Ruta hasta una casilla vecina del objetivo. Vacia si ya esta al lado; null si no hay camino.</summary>
         public List<Posicion> BuscarRutaHastaAdyacente(Posicion origen, Posicion objetivo)
         {
             if (origen.EsAdyacenteA(objetivo)) return new List<Posicion>();
             return BuscarRutaBFS(origen, pos => pos.EsAdyacenteA(objetivo));
         }
 
-        /// <summary>Búsqueda en anchura sobre casillas libres (8 direcciones, sin cortar esquinas bloqueadas).</summary>
+        /// <summary>BFS sobre casillas libres (8 direcciones, sin cortar esquinas).</summary>
         private List<Posicion> BuscarRutaBFS(Posicion origen, Func<Posicion, bool> esMeta)
         {
             lock (_candado)
@@ -307,7 +289,7 @@ namespace Modelo
                         if (diagonal &&
                             !_casillas[actual.Fila, vecina.Columna].EstaLibre() &&
                             !_casillas[vecina.Fila, actual.Columna].EstaLibre())
-                            continue; // no pasar "entre" dos obstáculos en diagonal
+                            continue;  // no pasar "entre" dos obstaculos en diagonal
 
                         previo[vecina] = actual;
                         if (esMeta(vecina)) return Reconstruir(previo, origen, vecina);
@@ -333,7 +315,7 @@ namespace Modelo
 
         // ------------------------------------------------------------ archivo
 
-        /// <summary>Representación en texto de la matriz, usada en configuracion.txt y resultado_final.txt.</summary>
+        /// <summary>El mapa como texto, para los archivos .txt.</summary>
         public string ComoTexto()
         {
             var sb = new StringBuilder();

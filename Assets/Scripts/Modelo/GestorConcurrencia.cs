@@ -8,23 +8,9 @@ using System.Threading.Tasks;
 namespace Modelo
 {
     /// <summary>
-    /// Aquí viven los hilos de trabajo del juego (Task sobre el ThreadPool):
-    ///   - Recolección continua de cada aldeano.
-    ///   - Tiempo de construcción de cada edificio.
-    ///   - Tiempo de entrenamiento de cada unidad.
-    ///   - Movimiento casilla a casilla de cada unidad.
-    ///   - Recarga de cada unidad militar después de disparar.
-    ///
-    /// Sincronización:
-    ///   - Recursos, Mapa, Unidad y Edificio protegen su propio estado con lock/Interlocked.
-    ///   - Los resultados visibles se publican en la ColaEventos (ConcurrentQueue),
-    ///     que el Controlador vacía desde el hilo principal de Unity.
-    ///
-    /// Finalización:
-    ///   - Un CancellationTokenSource global cancela todo al terminar la partida.
-    ///   - Cada unidad tiene además su propio token de "orden actual": una orden
-    ///     nueva (mover, recolectar) cancela la anterior.
-    ///   - Todas las tareas se registran en _tareas para poder esperarlas en DetenerTodo().
+    /// Crea los hilos de trabajo (Task): recoleccion, construccion, entrenamiento,
+    /// movimiento y recarga. Cada accion valida, cobra, lanza la Task y encola un evento.
+    /// Se cancelan con CancellationToken y se esperan en DetenerTodo().
     /// </summary>
     public class GestorConcurrencia
     {
@@ -39,10 +25,10 @@ namespace Modelo
             _partida = partida ?? throw new ArgumentNullException(nameof(partida));
         }
 
-        /// <summary>Cantidad de hilos de trabajo activos en este momento (se muestra en la interfaz).</summary>
+        /// <summary>Hilos de trabajo activos (se muestra en la interfaz).</summary>
         public int TareasActivas => _tareas.Count;
 
-        /// <summary>Cancela todos los hilos y espera (máx. 'esperaMs') a que terminen limpiamente.</summary>
+        /// <summary>Cancela todos los hilos y espera a que terminen.</summary>
         public void DetenerTodo(int esperaMs = 1500)
         {
             if (!_cts.IsCancellationRequested) _cts.Cancel();
@@ -54,9 +40,7 @@ namespace Modelo
             catch (AggregateException) { /* las tareas canceladas lanzan; es lo esperado */ }
         }
 
-        // ================================================================
-        // Infraestructura de hilos
-        // ================================================================
+        // --- Infraestructura de hilos ---
 
         private void Lanzar(string nombre, Func<CancellationToken, Task> trabajo, CancellationToken token)
         {
@@ -76,7 +60,7 @@ namespace Modelo
             tarea.ContinueWith(t => _tareas.TryRemove(t.Id, out _), TaskScheduler.Default);
         }
 
-        /// <summary>Crea el token de una nueva orden para la unidad y cancela la orden anterior.</summary>
+        /// <summary>Nueva orden para la unidad: cancela la anterior.</summary>
         private CancellationToken NuevaOrden(Unidad unidad)
         {
             var nueva = CancellationTokenSource.CreateLinkedTokenSource(_cts.Token);
@@ -99,9 +83,7 @@ namespace Modelo
             return null;
         }
 
-        // ================================================================
-        // Construcción
-        // ================================================================
+        // --- Construccion ---
 
         public ResultadoAccion Construir(Jugador jugador, TipoEdificio tipo, Posicion pos)
         {
@@ -119,7 +101,7 @@ namespace Modelo
             var edificio = new Edificio(jugador.NuevoId("ed"), tipo, pos, jugador.Id, civ: jugador.Civilizacion);
             if (!jugador.Mapa.ColocarEdificio(edificio))
             {
-                jugador.Recursos.Devolver(costo); // otro hilo ocupó la casilla justo antes
+                jugador.Recursos.Devolver(costo);  // otro hilo ocupo la casilla justo antes
                 return Rechazar(jugador, $"La casilla {pos} acaba de ocuparse. Se devolvió el costo.");
             }
             jugador.AgregarEdificio(edificio);
@@ -132,7 +114,7 @@ namespace Modelo
                 for (int i = 1; i <= pasos; i++)
                 {
                     await Task.Delay(edificio.TiempoConstruccionMs / pasos, token);
-                    if (!edificio.EstaVivo()) return; // lo destruyeron mientras se construía
+                    if (!edificio.EstaVivo()) return;  // lo destruyeron mientras se construia
                     edificio.ProgresoConstruccion = i * 100 / pasos;
                 }
                 edificio.Estado = EstadoConstruccion.Completado;
@@ -144,9 +126,7 @@ namespace Modelo
             return ResultadoAccion.Ok($"Construyendo {ReglasJuego.Nombre(tipo)} en {pos}.");
         }
 
-        // ================================================================
-        // Entrenamiento
-        // ================================================================
+        // --- Entrenamiento ---
 
         public ResultadoAccion Entrenar(Jugador jugador, TipoUnidad tipo)
         {
@@ -193,7 +173,7 @@ namespace Modelo
                         edificio.ProgresoEntrenamiento = i * 100 / pasos;
                     }
 
-                    // Buscar dónde aparece la unidad; si todo está lleno, reintenta cada segundo.
+                    // Buscar donde aparece la unidad; si todo esta lleno, reintenta cada segundo.
                     var unidad = new Unidad(jugador.NuevoId(tipo.ToString().ToLower()), tipo, edificio.Posicion, jugador.Id, jugador.Civilizacion);
                     while (true)
                     {
@@ -218,9 +198,7 @@ namespace Modelo
             return ResultadoAccion.Ok($"Entrenando {nombreUnidad}...");
         }
 
-        // ================================================================
-        // Movimiento
-        // ================================================================
+        // --- Movimiento ---
 
         public ResultadoAccion Mover(Jugador jugador, Unidad unidad, Posicion destino)
         {
@@ -256,10 +234,7 @@ namespace Modelo
             return ResultadoAccion.Ok($"{unidad.Nombre} en camino a {destino}.");
         }
 
-        /// <summary>
-        /// Recorre una ruta paso a paso a la velocidad de la unidad. Si otra
-        /// unidad bloquea el camino, recalcula la ruta (hasta 5 veces).
-        /// </summary>
+        /// <summary>Camina la ruta paso a paso; si se bloquea, la recalcula (max. 5 veces).</summary>
         private async Task<bool> Caminar(Jugador jugador, Unidad unidad, Func<List<Posicion>> calcularRuta, CancellationToken token)
         {
             int reintentos = 0;
@@ -285,9 +260,7 @@ namespace Modelo
             return false;
         }
 
-        // ================================================================
-        // Recolección
-        // ================================================================
+        // --- Recoleccion ---
 
         public ResultadoAccion Recolectar(Jugador jugador, Unidad aldeano, Posicion posRecurso)
         {
@@ -328,7 +301,7 @@ namespace Modelo
                         if (!aldeano.EstaVivo() || !_partida.EnCurso) return;
 
                         int extraido = jugador.Mapa.ExtraerRecurso(objetivo, ReglasJuego.CantidadPorCiclo, out var tipoExtraido);
-                        if (extraido == 0) break; // se agotó (quizá otro aldeano sacó lo último)
+                        if (extraido == 0) break;  // se agoto (quiza otro aldeano saco lo ultimo)
 
                         jugador.Recursos.Agregar(tipoExtraido, extraido);
                         jugador.Estadisticas.SumarRecolectado(extraido);
@@ -356,15 +329,9 @@ namespace Modelo
             return ResultadoAccion.Ok($"Aldeano enviado por {ReglasJuego.Nombre(tipo.Value).ToLower()}.");
         }
 
-        // ================================================================
-        // Ataque
-        // ================================================================
+        // --- Ataque ---
 
-        /// <summary>
-        /// Una unidad militar dispara contra una casilla del mapa enemigo. El
-        /// impacto se resuelve al instante (con los locks de Unidad/Edificio/
-        /// Mapa); luego un hilo lleva la cuenta del tiempo de recarga.
-        /// </summary>
+        /// <summary>Dispara a una casilla enemiga: el impacto es inmediato y la recarga corre en una Task.</summary>
         public ResultadoAccion Atacar(Jugador atacante, Unidad unidad, Posicion objetivo)
         {
             var invalida = ValidarPartida();

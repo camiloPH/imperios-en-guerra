@@ -6,17 +6,12 @@ namespace Modelo
     public enum TipoEdificio { CentroUrbano, Cuartel, Casa }
     public enum EstadoConstruccion { EnConstruccion, Completado, Destruido }
 
-    /// <summary>
-    /// POCO: un edificio. No sabe dibujarse; la Vista lee Estado, Progreso y
-    /// Vida. El hilo de construcción, el de entrenamiento y los ataques
-    /// enemigos lo modifican en paralelo, por eso la vida va con lock y el
-    /// "está entrenando" con Interlocked.
-    /// </summary>
+    /// <summary>Edificio. Vida con lock y entrenamiento con Interlocked (varios hilos lo modifican).</summary>
     public class Edificio
     {
         private readonly object _candado = new object();
         private int _vida;
-        private int _entrenando; // 0 libre, 1 entrenando
+        private int _entrenando;  // 0 libre, 1 entrenando
         private volatile EstadoConstruccion _estado;
         private volatile int _progresoConstruccion;
         private volatile int _progresoEntrenamiento;

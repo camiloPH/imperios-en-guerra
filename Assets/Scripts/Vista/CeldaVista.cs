@@ -5,12 +5,7 @@ using Modelo;
 
 namespace Vista
 {
-    /// <summary>
-    /// Dibujo de una casilla del mapa: pasto, recurso o edificio, andamio y
-    /// barra de progreso/vida, marca de disparo, niebla y resaltado. Recibe
-    /// los clics del ratón (raycast de la UI de Unity) y se los pasa al
-    /// VistaMapa. Solo lee InfoCasilla; nunca modifica el Modelo.
-    /// </summary>
+    /// <summary>Dibuja una casilla y recibe sus clics. Solo lee InfoCasilla.</summary>
     public class CeldaVista : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
     {
         private static readonly Color ColorNiebla = new Color(0.58f, 0.6f, 0.7f, 1f);
@@ -28,7 +23,7 @@ namespace Vista
 
             _fondo = gameObject.AddComponent<Image>();
             _fondo.sprite = pasto;
-            _fondo.raycastTarget = true; // la casilla es la que recibe el clic
+            _fondo.raycastTarget = true;  // la casilla es la que recibe el clic
 
             _anillo = Hijo("Anillo", CatalogoSprites.Obtener("seleccion"), 0, tam * 0.1f, tam, tam * 0.9f);
             _contenido = Hijo("Contenido", null, tam * 0.04f, tam * 0.02f, tam * 0.92f, tam * 0.92f);
@@ -55,7 +50,7 @@ namespace Vista
             return img;
         }
 
-        /// <summary>Actualiza el dibujo; solo toca los componentes si algo cambió (firma distinta).</summary>
+        /// <summary>Actualiza el dibujo solo si algo cambio (firma distinta).</summary>
         public void Aplicar(in InfoCasilla info, Civilizacion civDueño, bool visible, bool edificioSeleccionado)
         {
             int marcaVisible = info.SegundosDesdeMarca < 12 ? (int)(info.SegundosDesdeMarca * 4) : -1;

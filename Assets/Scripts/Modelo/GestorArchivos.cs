@@ -8,15 +8,8 @@ using System.Threading;
 namespace Modelo
 {
     /// <summary>
-    /// Manejo de archivos (System.IO): configuracion.txt, log_partida.txt y
-    /// resultado_final.txt.
-    ///
-    /// El log recibe eventos desde varios hilos. Para no bloquear el hilo
-    /// principal de Unity con escrituras a disco, se usa el patrón
-    /// productor-consumidor: RegistrarEvento() solo agrega el texto a una
-    /// BlockingCollection (thread-safe) y un hilo dedicado ("Hilo-Log") la
-    /// vacía y escribe en el archivo. Al cerrar se llama a Dispose(), que
-    /// marca CompleteAdding() y espera a que el hilo termine de escribir.
+    /// configuracion.txt, log_partida.txt y resultado_final.txt.
+    /// El log usa productor-consumidor: BlockingCollection + hilo dedicado "Hilo-Log".
     /// </summary>
     public class GestorArchivos : IDisposable
     {
@@ -34,7 +27,7 @@ namespace Modelo
         private readonly object _candadoArchivo = new object();
         private volatile string _ultimoError;
 
-        /// <summary>Último error de E/S (null si todo va bien). La Vista lo puede mostrar.</summary>
+        /// <summary>Ultimo error de E/S (null si todo va bien). La Vista lo puede mostrar.</summary>
         public string UltimoError => _ultimoError;
 
         public GestorArchivos(string carpeta)
@@ -89,7 +82,7 @@ namespace Modelo
             }
         }
 
-        // ------------------------------------------------------------ configuración y resultado
+        // ------------------------------------------------------------ configuracion y resultado
 
         public bool GuardarConfiguracionInicial(Partida partida)
         {

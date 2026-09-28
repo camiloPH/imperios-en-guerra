@@ -4,12 +4,7 @@ using Modelo;
 
 namespace Vista
 {
-    /// <summary>
-    /// Segunda Vista, solo de depuración: escribe en la Console de Unity los
-    /// mensajes y ataques. Demuestra que el Controlador puede avisar a varias
-    /// Vistas a la vez sin cambiar nada (todas implementan IVistaJuego).
-    /// Se puede quitar del GameObject sin afectar el juego.
-    /// </summary>
+    /// <summary>Vista de depuracion: escribe en la Console. Muestra que el Controlador soporta varias Vistas.</summary>
     public class VistaConsolaTemporal : MonoBehaviour, IVistaJuego
     {
         [SerializeField] private bool registrarMensajes = true;

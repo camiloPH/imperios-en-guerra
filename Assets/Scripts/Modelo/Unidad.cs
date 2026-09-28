@@ -6,18 +6,13 @@ namespace Modelo
     public enum TipoUnidad { Aldeano, Infante, Arquero }
     public enum EstadoUnidad { Inactiva, Moviendose, Recolectando }
 
-    /// <summary>
-    /// POCO: una unidad (aldeano o militar). Varios hilos la tocan a la vez
-    /// (su hilo de movimiento/recolección, hilos de ataque enemigos que le
-    /// quitan vida, el hilo principal que la dibuja), por eso la vida y la
-    /// posición se protegen con lock y la recarga con Interlocked.
-    /// </summary>
+    /// <summary>Aldeano o soldado. Vida y posicion con lock; recarga con Interlocked.</summary>
     public class Unidad
     {
         private readonly object _candado = new object();
         private Posicion _posicion;
         private int _vida;
-        private int _recargando; // 0 = lista, 1 = recargando (Interlocked)
+        private int _recargando;  // 0 = lista, 1 = recargando (Interlocked)
         private volatile EstadoUnidad _estado = EstadoUnidad.Inactiva;
         private volatile string _descripcionEstado = "Inactiva";
 
@@ -32,7 +27,7 @@ namespace Modelo
 
         public Civilizacion Civilizacion { get; }
 
-        /// <summary>Nombre según el bando: "Hoplita", "Lancero troyano", etc.</summary>
+        /// <summary>Nombre segun el bando: "Hoplita", "Lancero troyano", etc.</summary>
         public string Nombre => ReglasJuego.Nombre(Tipo, Civilizacion);
 
         public Unidad(string id, TipoUnidad tipo, Posicion posicion, string dueñoId, Civilizacion civ = Civilizacion.Grecia)
@@ -80,11 +75,7 @@ namespace Modelo
         public bool EstaRecargando => Volatile.Read(ref _recargando) == 1;
         public int MsPorCasilla => (int)(1000 / Math.Max(0.1, VelocidadCasillasPorSeg));
 
-        /// <summary>
-        /// Resta vida de forma atómica. Devuelve true solo para el golpe que
-        /// la deja en cero: si dos ataques llegan a la vez, únicamente uno de
-        /// los hilos "la mata" y registra la baja.
-        /// </summary>
+        /// <summary>Resta vida con lock. Devuelve true solo al golpe que la deja en cero.</summary>
         internal bool RecibirDaño(int cantidad)
         {
             lock (_candado)

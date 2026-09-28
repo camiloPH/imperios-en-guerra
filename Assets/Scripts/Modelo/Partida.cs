@@ -4,10 +4,7 @@ namespace Modelo
 {
     public enum EstadoPartida { Preparando, EnCurso, Finalizada }
 
-    /// <summary>
-    /// Estado global del juego: los dos jugadores (humano vs. IA), la
-    /// dificultad y la cola de eventos hacia el Controlador. No conoce Unity.
-    /// </summary>
+    /// <summary>Estado global: los dos jugadores, la dificultad y la cola de eventos.</summary>
     public class Partida
     {
         public Jugador JugadorHumano { get; }
@@ -55,7 +52,7 @@ namespace Modelo
         public Jugador ObtenerOponente(Jugador jugador) =>
             jugador.Id == JugadorHumano.Id ? JugadorIA : JugadorHumano;
 
-        /// <summary>Pasa de Preparando a EnCurso. Ambos jugadores deben tener su Centro Urbano.</summary>
+        /// <summary>Inicia la partida si ambos jugadores tienen Centro Urbano.</summary>
         public ResultadoAccion Comenzar()
         {
             lock (_candadoEstado)
@@ -72,10 +69,7 @@ namespace Modelo
             return ResultadoAccion.Ok("Partida iniciada.");
         }
 
-        /// <summary>
-        /// Se llama tras cada destrucción. Es idempotente y thread-safe: puede
-        /// invocarse desde cualquier hilo del Modelo a la vez sin problema.
-        /// </summary>
+        /// <summary>Revisa si alguien perdio. Thread-safe e idempotente; se llama tras cada disparo.</summary>
         public void VerificarGanador()
         {
             lock (_candadoEstado)
@@ -86,7 +80,7 @@ namespace Modelo
                 bool iaDerrotada = JugadorIA.FueDerrotado();
                 if (!humanoDerrotado && !iaDerrotada) return;
 
-                // Empate imposible en la práctica; si ocurre, gana quien atacó último (el humano no pierde por empate).
+                // Si ambos pierden a la vez, gana el humano.
                 var ganador = iaDerrotada ? JugadorHumano : JugadorIA;
                 Finalizar(ganador);
             }
@@ -118,7 +112,7 @@ namespace Modelo
         }
     }
 
-    /// <summary>Resultado de validar/ejecutar una acción: éxito o motivo del rechazo.</summary>
+    /// <summary>Resultado de validar/ejecutar una accion: exito o motivo del rechazo.</summary>
     public readonly struct ResultadoAccion
     {
         public readonly bool Exito;

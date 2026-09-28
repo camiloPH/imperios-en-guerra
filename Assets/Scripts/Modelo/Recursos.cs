@@ -3,12 +3,7 @@ using System.Collections.Generic;
 
 namespace Modelo
 {
-    /// <summary>
-    /// Recursos (oro, madera, comida) de un jugador. Varios hilos leen y
-    /// escriben aquí a la vez: varios aldeanos recolectando, una construcción
-    /// y un entrenamiento consumiendo costo al mismo tiempo. Por eso todo
-    /// acceso pasa por lock(_candado).
-    /// </summary>
+    /// <summary>Oro, madera y comida de un jugador. Todo acceso pasa por lock.</summary>
     public class Recursos
     {
         private readonly Dictionary<TipoRecurso, int> _cantidades;
@@ -41,11 +36,7 @@ namespace Modelo
             }
         }
 
-        /// <summary>
-        /// Intenta descontar un costo compuesto (por ejemplo madera+oro para un
-        /// edificio) de forma atómica: o se descuenta todo, o no se descuenta
-        /// nada. Evita que dos hilos "gasten" el mismo oro al mismo tiempo.
-        /// </summary>
+        /// <summary>Cobra un costo completo o nada (atomico): evita gastar dos veces el mismo recurso.</summary>
         public bool IntentarConsumir(Dictionary<TipoRecurso, int> costo)
         {
             lock (_candado)
@@ -62,7 +53,7 @@ namespace Modelo
             }
         }
 
-        /// <summary>Devuelve un costo ya descontado (por ejemplo, si la casilla se ocupó antes de construir).</summary>
+        /// <summary>Devuelve un costo ya cobrado.</summary>
         public void Devolver(Dictionary<TipoRecurso, int> costo)
         {
             lock (_candado)

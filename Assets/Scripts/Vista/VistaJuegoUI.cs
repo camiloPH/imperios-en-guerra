@@ -12,14 +12,8 @@ using Modelo;
 namespace Vista
 {
     /// <summary>
-    /// Vista gráfica principal (UGUI). Construye toda la interfaz por código:
-    /// barra de recursos, mapa propio, mapa enemigo, panel de selección y
-    /// acciones, mensajes, menú de inicio y pantalla de fin de partida.
-    ///
-    /// Responsabilidades (MVC):
-    ///   - Dibujar lo que el Controlador le pide y lo que LEE del Modelo.
-    ///   - Reenviar cada clic/botón al Controlador (IEntradaJugador).
-    ///   - NO valida reglas ni modifica el Modelo.
+    /// Vista grafica principal (UGUI), construida por codigo. Dibuja lo que pide el
+    /// Controlador y lo que lee del Modelo; reenvia los clics. No modifica el Modelo.
     /// </summary>
     public class VistaJuegoUI : MonoBehaviour, IVistaJuego
     {
@@ -52,7 +46,7 @@ namespace Vista
         private Text _txtMensajes;
         private readonly List<string> _mensajes = new List<string>();
 
-        // Menú y fin
+        // Menu y fin
         private GameObject _menu, _fin;
         private Image _imgFin;
         private Text _txtFinTitulo, _txtFinGanador, _txtFinResumen, _txtFinArchivos;
@@ -64,9 +58,7 @@ namespace Vista
         private GameObject _ayuda;
         private Image _marcoPropio, _marcoEnemigo, _escudoBarra;
 
-        // ================================================================
-        // Ciclo de vida
-        // ================================================================
+        // --- Ciclo de vida ---
 
         private void Start()
         {
@@ -89,9 +81,7 @@ namespace Vista
             }
         }
 
-        // ================================================================
-        // IVistaJuego
-        // ================================================================
+        // --- IVistaJuego ---
 
         public void Conectar(IEntradaJugador entrada)
         {
@@ -154,14 +144,14 @@ namespace Vista
             _txtTiempo.text = partida.Duracion.ToString(@"mm\:ss");
             _txtHilos.text = $"Hilos activos: {hilosActivos}\n<size=12>(tareas + IA + Log)</size>";
 
-            // Mapas (instantáneas tomadas bajo el lock de cada Mapa)
+            // Mapas (instantaneas tomadas bajo el lock de cada Mapa)
             _ultimoPropio = humano.Mapa.Instantanea();
             _ultimoEnemigo = ia.Mapa.Instantanea();
             var seleccionadas = new HashSet<string>(seleccion.IdsUnidades);
             _mapaPropio.Refrescar(_ultimoPropio, humano.Unidades, _ => true, seleccionadas, seleccion.IdEdificio);
             _mapaEnemigo.Refrescar(_ultimoEnemigo, ia.Unidades, humano.TieneRevelada, null, null);
 
-            // Color del cursor al elegir dónde construir
+            // Color del cursor al elegir donde construir
             if (seleccion.Modo == ModoAccion.Construir && _hoverPropio.HasValue)
             {
                 bool libre = _ultimoPropio[_hoverPropio.Value.Fila, _hoverPropio.Value.Columna].Tipo == TipoCasilla.Libre;
@@ -241,9 +231,7 @@ namespace Vista
             _txtFinArchivos.text = $"configuracion.txt, log_partida.txt y resultado_final.txt guardados en:\n{carpetaArchivos}";
         }
 
-        // ================================================================
-        // Construcción de la interfaz
-        // ================================================================
+        // --- Construccion de la interfaz ---
 
         private void ConstruirInterfaz()
         {
@@ -366,7 +354,7 @@ namespace Vista
             return contenedor;
         }
 
-        /// <summary>Colores, emblemas e íconos de botones según el bando elegido.</summary>
+        /// <summary>Colores, emblemas e iconos de botones segun el bando elegido.</summary>
         private void AplicarColoresDeBando(Civilizacion civH, Civilizacion civIA)
         {
             Color Oscuro(Color c) => new Color(c.r * 0.5f, c.g * 0.5f, c.b * 0.5f, 1f);
@@ -595,9 +583,7 @@ namespace Vista
             _btnManual.Resaltar(_manual);
         }
 
-        // ================================================================
-        // Actualización de paneles
-        // ================================================================
+        // --- Actualizacion de paneles ---
 
         private void ActualizarSeleccion(Jugador humano, Seleccion sel)
         {

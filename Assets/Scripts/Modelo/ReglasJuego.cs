@@ -5,10 +5,10 @@ namespace Modelo
 {
     public enum Dificultad { Facil, Normal, Dificil }
 
-    /// <summary>Los dos bandos de la Guerra de Troya. El humano elige uno y la IA toma el otro.</summary>
+    /// <summary>Los dos bandos: el humano elige uno y la IA toma el otro.</summary>
     public enum Civilizacion { Grecia, Troya }
 
-    /// <summary>Estadísticas base de un tipo de unidad.</summary>
+    /// <summary>Estadisticas base de un tipo de unidad.</summary>
     public readonly struct EstadisticasUnidad
     {
         public readonly int Vida;
@@ -29,11 +29,7 @@ namespace Modelo
         }
     }
 
-    /// <summary>
-    /// Todas las constantes de balance del juego en un único lugar: costos,
-    /// vidas, tiempos y población. Cambiar el balance no obliga a tocar la
-    /// lógica ni la interfaz.
-    /// </summary>
+    /// <summary>Todos los numeros del juego (costos, vidas, tiempos, poblacion) en un solo lugar.</summary>
     public static class ReglasJuego
     {
         public const int FilasMapa = 15;
@@ -65,7 +61,7 @@ namespace Modelo
             }
         }
 
-        /// <summary>Bonificación de Troya: sus murallas dan +20 % de vida a todos sus edificios.</summary>
+        /// <summary>Bono de Troya: edificios con +20 % de vida.</summary>
         public static int VidaEdificio(TipoEdificio tipo, Civilizacion civ) =>
             civ == Civilizacion.Troya ? VidaEdificio(tipo) * 6 / 5 : VidaEdificio(tipo);
 
@@ -115,7 +111,7 @@ namespace Modelo
             }
         }
 
-        /// <summary>Bonificación de Grecia: sus Hoplitas (infantería) tienen +15 de vida.</summary>
+        /// <summary>Bonificacion de Grecia: sus Hoplitas (infanteria) tienen +15 de vida.</summary>
         public static EstadisticasUnidad Estadisticas(TipoUnidad tipo, Civilizacion civ)
         {
             var e = Estadisticas(tipo);
@@ -124,10 +120,7 @@ namespace Modelo
             return e;
         }
 
-        /// <summary>
-        /// Multiplicador del tiempo de recarga de las tropas de la IA según la
-        /// dificultad (en Fácil disparan más despacio).
-        /// </summary>
+        /// <summary>Multiplicador de recarga de la IA segun la dificultad (Facil = mas lenta).</summary>
         public static double ModificadorRecargaIA(Dificultad dificultad)
         {
             switch (dificultad)
@@ -149,11 +142,11 @@ namespace Modelo
             }
         }
 
-        /// <summary>Qué edificio (terminado) se necesita para entrenar cada unidad.</summary>
+        /// <summary>Que edificio (terminado) se necesita para entrenar cada unidad.</summary>
         public static TipoEdificio EdificioEntrenador(TipoUnidad tipo) =>
             tipo == TipoUnidad.Aldeano ? TipoEdificio.CentroUrbano : TipoEdificio.Cuartel;
 
-        /// <summary>El arquero revela un área de 3x3 alrededor del disparo; el infante solo la casilla.</summary>
+        /// <summary>El arquero revela 3x3 al disparar; el infante solo la casilla.</summary>
         public static int RadioRevelacion(TipoUnidad tipo) => tipo == TipoUnidad.Arquero ? 1 : 0;
 
         // ------------------------------------------------------------ textos
@@ -177,7 +170,7 @@ namespace Modelo
             }
         }
 
-        /// <summary>Nombre de la unidad según el bando (Hoplita griego, Lancero troyano...).</summary>
+        /// <summary>Nombre de la unidad segun el bando (Hoplita griego, Lancero troyano...).</summary>
         public static string Nombre(TipoUnidad tipo, Civilizacion civ)
         {
             switch (tipo)

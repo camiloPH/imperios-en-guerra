@@ -2,11 +2,7 @@ using Modelo;
 
 namespace Controlador
 {
-    /// <summary>
-    /// Contrato Vista -> Controlador: todo lo que el usuario puede hacer
-    /// desde la interfaz (clics sobre los mapas y botones). La Vista solo
-    /// informa QUÉ pasó; el Controlador decide y valida.
-    /// </summary>
+    /// <summary>Vista -> Controlador: lo que el usuario puede hacer (clics y botones).</summary>
     public interface IEntradaJugador
     {
         void IniciarPartida(Dificultad dificultad, bool ubicacionManual, Civilizacion civilizacion);
